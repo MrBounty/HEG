@@ -1,3 +1,5 @@
+![alt text](https://github.com/MrBounty/HEG/blob/main/HEG_logo.png)
+
 # Building an App with the HEG Tech Stack
 Simple webapp tech stack without JS
 
