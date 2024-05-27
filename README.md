@@ -19,7 +19,7 @@ This philosophy guided my choice of technologies.
 Go, developed by Google, embodies simplicity and productivity. Its fast compilation times make it ideal for rapid development. While not the best in any specific category, Go excels in overall performance and ease of use.
 
 ### EdgeDB
-EdgeDB is a modern database designed with developer experience in mind. Its queries integrate seamlessly with Go, using similar data structures and types. EdgeDB simplifies complex SQL queries and offers numerous quality-of-life features.
+EdgeDB is a modern database designed with developer experience in mind. Its queries integrate seamlessly with Go, using similar data structures and types. EdgeDB simplifies complex SQL queries and offers numerous quality-of-life features with a UI to explore and query data from a browser.
 
 ### HTMX
 HTMX allows you to handle user inputs by sending requests to the server and updating parts of the HTML using attributes. This reduces the need for complex JavaScript frameworks for apps with small to medium interactivity. While HTMX does not eliminate JavaScript entirely, it significantly reduces the amount required.
@@ -74,6 +74,9 @@ Here's a simple example of using Go templates to loop over all `Items` and displ
 ```
 
 *Note: I use the Django template because I like it but the go and other one are good too. [Choose the one you prefer.](https://docs.gofiber.io/guide/templates/)*
+
+## Authentification
+(TODO: Edgedb have a built in auth. So you can use github, google and other easely)
 
 ## Deployment
 Deploying your application built with the HEG stack is straightforward, as it runs as a Go server. You can deploy it almost anywhere, but I personally prefer Google Cloud with Cloud Run due to its ease of use and scalability features.
@@ -131,3 +134,13 @@ ENTRYPOINT ["/go/main"]
 
 ## Interactive table
 (TODO: Add example)
+
+# Aditional tech
+Obviously you need more tech for specific things. Here a list of some usefull one.
+
+- [Stripe](https://stripe.com/) for payment
+
+### Frontend toolkit
+- [Bulma](https://bulma.io/)
+- [Bootstrap](https://getbootstrap.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
