@@ -8,19 +8,21 @@ You might feel overwhelmed by the variety of frameworks and libraries available 
 
 In this landscape, JavaScript is unavoidable. Whether you like it or not, mastering a JavaScript framework like React or Angular is often seen as essential. However, for those who prefer simplicity and minimalism, there is an alternative: HTMX.
 
+*Note: JavaScript is fine, I just don't like it being mandatory.*
+
 # Stack Philosophy: Simplicity
-The HEG tech stack is built on simplicity. My definition of simplicity is straightforward: **code that can be understood without documentation and minimal comments in less than like 20 seconds**. This philosophy guided my choice of technologies.
+The HEG tech stack is built on simplicity. My definition of simplicity is: **code/structure that can be understood without documentation and minimal comments in less than like 20 seconds** but that's for code, here we are talking tech stack but this philosophy guided my choice of technologies.
 
 # The HEG Tech Stack
 
 ## Go (Golang)
-Go, developed by Google, embodies simplicity and productivity. Its fast compilation times make it ideal for rapid development. While not the best in any specific category, Go excels in overall performance and ease of use. [Learn more](https://go.dev/)
+Go, developed by Google, embodies simplicity and productivity so how can't I choose it? Its fast compilation times make it ideal for rapid development. While not the best in any specific category, Go excels in overall performance and ease of use. [Learn more](https://go.dev/)
 
 ## EdgeDB
-EdgeDB is an open-source modern database designed with developer experience in mind. Its queries integrate seamlessly with Go, using similar data structures and types. EdgeDB simplifies complex SQL queries and offers numerous quality-of-life features with a UI to explore and query data from a browser. And a cloud service [Learn more](https://www.edgedb.com/)
+EdgeDB is an open-source modern database designed with developer experience in mind. Its queries integrate seamlessly with Go, using similar data structures and types. EdgeDB simplifies complex SQL queries and offers numerous quality-of-life features with a UI to explore and query data from a browser. (And a cloud service) [Learn more](https://www.edgedb.com/)
 
 ## HTMX
-HTMX allows you to handle user inputs by sending requests to the server and updating parts of the HTML using attributes. This reduces the need for complex JavaScript frameworks for apps with small to medium interactivity. While HTMX does not eliminate JavaScript entirely, it significantly reduces the amount required. [Learn more](https://htmx.org/)
+HTMX allows you to send requests to the server that return HTML and update parts of the page using HTML attributes. This reduces the need for complex JavaScript frameworks for apps with small to medium interactivity. While HTMX does not eliminate JavaScript entirely, it significantly reduces the amount required. [Learn more](https://htmx.org/)
 
 # EdgeDB + Go
 
@@ -80,61 +82,7 @@ Deploying your application built with the HEG stack is straightforward, as it ru
 
 [Learn more about Google Cloud - Cloud Run](https://cloud.google.com/run)
 
-Here the docker file I use to build the image:
-```dockerfile
-############################
-# STEP 1 build executable binary
-############################
-FROM golang:alpine AS builder
-# Install git.
-# Git is required for fetching the dependencies.
-RUN apk update && apk add --no-cache 'git=~2'
-
-# Install dependencies
-ENV GO111MODULE=on
-WORKDIR $GOPATH/src/packages/goginapp/
-COPY . .
-
-# Fetch dependencies.
-# Using go get.
-RUN go get -d -v
-
-# Build the binary.
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o /go/main .
-
-############################
-# STEP 2 build a small image
-############################
-FROM alpine:3
-
-WORKDIR /
-
-# Copy our static executable.
-COPY --from=builder /go/main /go/main
-COPY views /go/views
-COPY static /go/static
-
-ENV PORT 8080
-ENV GIN_MODE release
-EXPOSE 8080
-
-WORKDIR /go
-
-# Run the Go Gin binary.
-ENTRYPOINT ["/go/main"]
-```
-
-*Note that I took it from idk. So I'm not sure the exact step of it.*
-
-# Examples
-
-## Set up the project
-
-## Chatbot
-(TODO: Add example)
-
-## Interactive table
-(TODO: Add example)
+Here the docker file I use to build the image (TODO Add file link)
 
 # Aditional tech
 Obviously you need more tech for specific things. Here a list of some usefull one.
@@ -145,3 +93,13 @@ Obviously you need more tech for specific things. Here a list of some usefull on
 - [Bulma](https://bulma.io/)
 - [Bootstrap](https://getbootstrap.com/)
 - [Tailwind CSS](https://tailwindcss.com/)
+
+# Examples
+
+## Chatbot
+(TODO: Add example)
+
+## Interactive table
+(TODO: Add example)
+
+
