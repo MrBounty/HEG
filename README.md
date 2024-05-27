@@ -1,7 +1,7 @@
-![alt text](https://github.com/MrBounty/HEG/blob/main/HEG_logo.png)
-
 # Building an App with the HEG Tech Stack
 Simple webapp tech stack without JS
+
+![alt text](https://github.com/MrBounty/HEG/blob/main/HEG_logo.png)
 
 ## Introduction
 You might feel overwhelmed by the variety of frameworks and libraries available to do frontend. Even performing some basic task seems to require complex frameworks, enormous libraries, and extensive boilerplate code.
