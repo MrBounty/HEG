@@ -9,9 +9,7 @@ You might feel overwhelmed by the variety of frameworks and libraries available 
 In this landscape, JavaScript is unavoidable. Whether you like it or not, mastering a JavaScript framework like React or Angular is often seen as essential. However, for those who prefer simplicity and minimalism, there is an alternative: HTMX.
 
 ## Stack Philosophy: Simplicity
-The HEG tech stack is built on simplicity. My definition of simplicity is straightforward: code that can be understood without documentation and minimal comments in less than five seconds. So if I come back in 2 years, I'm not lost. If someone else read my code, it's not too difficult. If something break, I can easely identify it.
-
-This philosophy guided my choice of technologies.
+The HEG tech stack is built on simplicity. My definition of simplicity is straightforward: **code that can be understood without documentation and minimal comments in less than five seconds**. This philosophy guided my choice of technologies.
 
 ## The HEG Tech Stack
 
