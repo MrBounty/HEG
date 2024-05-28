@@ -76,9 +76,8 @@ EdgeDB have a built-in authentification. You can use commun provider like Google
 [Learn more](https://docs.edgedb.com/guides/auth)
 
 ## Deployment
-Deploying your application built with the HEG stack is straightforward, as it runs as a Go server. You can deploy it almost anywhere, but I personally prefer Google Cloud with Cloud Run due to its ease of use and scalability features.
-
-[Learn more about Google Cloud - Cloud Run](https://cloud.google.com/run)
+You can use Google Cloud run, it's ok, I tried. But I highly recommand [fly.io](https://fly.io/) because of how efficient Go is.  
+You can easily run a decently optimize Go app with just a 1 shared + 256 MB of RAM. Making it the cheapest option available at 
 
 Here the docker file I use to build the image (TODO Add file link)
 
