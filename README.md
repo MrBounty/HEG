@@ -1,5 +1,5 @@
 # HEG Tech Stack
-Simple webapp tech stack without JS
+Built low cost webapp in simplicity without JavaScript
 
 ![alt text](https://github.com/MrBounty/HEG/blob/main/HEG_logo.png)
 
@@ -77,7 +77,8 @@ EdgeDB have a built-in authentification. You can use commun provider like Google
 
 ## Deployment
 You can use Google Cloud run, it's ok, I tried. But I highly recommand [fly.io](https://fly.io/) because of how efficient Go is.  
-You can easily run a decently optimize Go app with just a 1 shared + 256 MB of RAM. Making it the cheapest option available at 
+You can easily run a decently optimize Go app with just a 1 shared + 256 MB of RAM. Making it the cheapest option available at just $1.94/mo! So if in average a user spend 4h per day, you would pay around 0.30$/mo!
+To compare with a flask app running on cloud run. Idk if I set up it wrong, but I would pay like 20x this, if not more. 
 
 Here the docker file I use to build the image (TODO Add file link)
 
