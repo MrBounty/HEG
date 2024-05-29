@@ -1,5 +1,5 @@
 # HEG Tech Stack
-Built low cost webapp in simplicity without JavaScript
+Built low cost webapp in simplicity without JavaScript (Note: WIP)
 
 ![alt text](https://github.com/MrBounty/HEG/blob/main/HEG_logo.png)
 
@@ -81,6 +81,16 @@ You can easily run a decently optimize Go app with just a 1 shared + 256 MB of R
 To compare with a flask app running on cloud run. Idk if I set up it wrong, but I would pay like 20x this, if not more. 
 
 Here the docker file I use to build the image (TODO Add file link)
+
+# Performance
+I wanted to take some time talking about performance. Because making simple thing is nice and all, but sometime complex problem require complex solution.  
+But that's kind of for later, here we are more planning how we will build our app and the philisophy behind it. Not how to solve the problem itself! This can be complex.  
+
+So like I said, the philosophy of HEG is to not have any state, either on the server nor the client. The master state is the database and the client state is the HTML itself! Not some variables in JavaScript! #HATEOAS
+Meaning that our routes are only getting data from the database and then sending HTML. Meaning that the server use nothing basically. It is cheap af. I can run it on fly.io on a 1 shared cpu and 256MB of RAM and I not even use half the RAM, I don't even more than 1% of the CPU. Yes, not even 1%, I'm around 0.01-0.6%!
+
+Here a image of an average app running on fly.io activelly used by a user:
+![alt text](https://github.com/MrBounty/HEG/blob/main/fly_dashboard.png)
 
 # Aditional tech
 Obviously you need more tech for specific things. Here a list of some usefull one.
