@@ -55,6 +55,50 @@ EdgeDB support links for easy relationship. For example, a `User` having a uniqu
 
 [Learn more about links](https://docs.edgedb.com/database/datamodel/links)
 
+## Examples
+Here an example where I create a User variable in Go, then populate it. 
+```go
+var user User
+edgeClient.QuerySingle(`
+SELECT User {
+    name,
+    email
+  } 
+FILTER .name = "Adrien";
+`, , &user)
+```
+
+*Note that I only get the name and email, so other value will be empty. Like Avatar is ""*
+
+Here a more advance example where I get an array of Message with other type inside.
+
+```go
+var Messages []Message
+err = edgeClient.Query(edgeCtx, `
+SELECT Message {
+    id,
+    selected,
+    role,
+    content,
+    date,
+    llm : {
+        name,
+        modelInfo : {
+            modelID,
+            name,
+            company : {
+                icon
+            }
+        }
+    }
+  } 
+FILTER .conversation = global currentConversation AND .conversation.user = global currentUser
+ORDER BY .date ASC
+`, &Messages)
+```
+
+*Note that .conversation.user, meaning 2 relationship! It would be a nightmare to do in SQL.*
+
 ## Templates
 You can generate HTML directly from Go passing your types as input and send it to the client.  
 A tipical route is: update the database -> retrieve data from database -> generate HTML -> send HTML
