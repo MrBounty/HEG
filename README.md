@@ -59,7 +59,7 @@ EdgeDB support links for easy relationship. For example, a `User` having a uniqu
 Here an example where I create a User variable in Go, then populate it. 
 ```go
 var user User
-edgeClient.QuerySingle(context.Background(), `
+edgeClient.QuerySingle(context.TODO(), `
 SELECT User {
     name,
     email
@@ -74,7 +74,7 @@ Here a more advance example where I get an array of Message with other type insi
 
 ```go
 var Messages []Message
-err = edgeClient.Query(context.Background(), `
+err = edgeClient.Query(context.TODO(), `
 SELECT Message {
     id,
     selected,
