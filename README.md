@@ -1,5 +1,5 @@
 # HEG Tech Stack
-Built low cost webapp in simplicity without JavaScript (Note: WIP)
+Built Interactive and Performant Webapp in Simplicity without JavaScript (Note: WIP)
 
 ![alt text](https://github.com/MrBounty/HEG/blob/main/HEG_logo.png)
 
