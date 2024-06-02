@@ -24,11 +24,7 @@ EdgeDB is an open-source modern database designed with developer experience in m
 ## HTMX
 HTMX allows HTML attributes to send requests to the server that return HTML and use it to update parts of the page. This reduces the need for complex JavaScript frameworks for apps with small to medium interactivity. While HTMX does not eliminate JavaScript entirely, it significantly reduces the amount required by removing the need of a framework. [Learn more](https://htmx.org/)
 
-# Go + HTMX
-
-TODO
-
-# EdgeDB + Go
+# Go + EdgeDB
 
 ## Start a DB
 First thing to do is to follow the [EdgeDB quickstart](https://docs.edgedb.com/get-started/quickstart). It will install necessary stuff. You sould end up with something like that:
@@ -38,6 +34,8 @@ First thing to do is to follow the [EdgeDB quickstart](https://docs.edgedb.com/g
 │   ├── default.esdl
 │   ├── migrations
 ```
+
+You can either create a local db or use a cloud free tier to start developping.
 
 ## Defining Type
 You define type in `default.esdl` like that:
@@ -51,6 +49,23 @@ type User {
 ```
 [Learn more about EdgeDB schema](https://docs.edgedb.com/database/datamodel)
 [Learn more about EdgeDB type](https://docs.edgedb.com/database/datamodel/objects)
+
+Here a more advance example if default value:
+```esdl
+type Conversation {
+	required name: str;
+	required position: int32;
+	required selected: bool {
+	    default := false; 
+	};
+	required user: User {
+	    on target delete delete source; # When the user is delete, delete the conv
+	};
+	required date: datetime {
+	    default := datetime_current();
+	}
+}
+```
 
 You also define a type in go in a similar way.
 ```go
@@ -105,19 +120,6 @@ ORDER BY .date ASC
 ```
 
 *Note that .conversation.user, meaning 2 relationship! It would be a nightmare to do in SQL.*
-
-## Templates
-You can generate HTML directly from Go passing your types as input and send it to the client.  
-A tipical route is: update the database -> retrieve data from database -> generate HTML -> send HTML
-
-Here's a simple example of using Go templates to loop over all `Items` and display a list of `Item.Name`:
-```html
-<ul>
-    {% for item in Items %}
-    <li>{{ item.Name }}</li>
-    {% endfor %}
-</ul>
-```
 
 *Note: I use the Django template because I like it but the go and other one are good too. [Choose the one you prefer.](https://docs.gofiber.io/guide/templates/)* [Or learn more abour Django template](https://docs.djangoproject.com/en/5.0/ref/templates/language/)
 
@@ -201,15 +203,62 @@ And that's it, you can now query aywhere in your app and every request is potent
 
 *Note: A function named init in go in any file will be run one time at the beguinning.*
 
-## Deployment
-For the deployment you can use anything as it is just a docker container. It is a really small one too, for example my app [JADE](https://jade.bouvai.com) is a 31MB container that run perfectly on a 1 shared CPU and 256MB or RAM. So the hosting part isn't an issue as it would cost near to nothing on any cloud platform.
+# Go + HTMX + JS
+
+Ok now that we have setup everything, we need to start building the app. Idk what you are trying to build but I will try to give my idea of it.
+
+## Using HTMX
+
+### The Five Ws
+
+I like to imagine each element using HTMX answering this:
+- Where ? *The route to get the HTML*
+- Who ? *The element that will be affected*
+- When ? *The trigger*
+- With ? *The data attach*
+- What ? *The place to put the response*
+
+For more information, please check the HTMX docs, it is well build, easy and fast to read. [Link](https://htmx.org/docs/)
+
+### Where
+
+Send a POST request
+```html
+<button
+hx-post="/clicked
+hx-trigger="click">
+Click me!
+</button>
+```
+
+This will send a POST request to `/clicked` and use the response. By default replacing it inside with the response. You can alse use `hx-get`, `hx-delete`, `hx-put`, `hx-patch`.
+
+### Who
+
+The target of the request is by defaut the element making the request
+
+## Templates
+You can generate HTML directly from Go passing your types as input and send it to the client.  
+A tipical route is: update the database -> retrieve data from database -> generate HTML -> send HTML
+
+Here's a simple example of using Go templates to loop over all `Items` and display a list of `Item.Name`:
+```html
+<ul>
+    {% for item in Items %}
+    <li>{{ item.Name }}</li>
+    {% endfor %}
+</ul>
+```
+
+# Deployment
+For the deployment you can use anything as it is just a docker container [Dockerfile](https://github.com/MrBounty/HEG/edit/main/Dockerfile). It is a really small one too, for example my app [JADE](https://jade.bouvai.com) is a 31MB container that run perfectly on a 1 shared CPU and 256MB or RAM on fly.io. So the hosting part isn't an issue as it would cost near to nothing on any cloud platform.
 
 I personally use [fly.io](fly.io) because it is perfect for me. It do exactly what I want and nothing more, it is easy to use and keep the same philosophy as HEG.
 
 TODO: Tuto to deploy an app on fly
 
 # Performance
-TODO
+TODO: Need data with more users
 
 # Aditional tech
 - [Stripe](https://stripe.com/) for payment
@@ -218,13 +267,5 @@ TODO
 - [Bulma](https://bulma.io/)
 - [Bootstrap](https://getbootstrap.com/)
 - [Tailwind CSS](https://tailwindcss.com/)
-
-# Examples
-
-## Chatbot
-(TODO: Add example)
-
-## Interactive table
-(TODO: Add example)
 
 
