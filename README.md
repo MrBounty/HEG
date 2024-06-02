@@ -56,7 +56,7 @@ EdgeDB support links for easy relationship. For example, a `User` having a uniqu
 [Learn more about links](https://docs.edgedb.com/database/datamodel/links)
 
 ## Examples
-Here an example where I create a User variable in Go, then populate it. 
+Get User:
 ```go
 var user User
 edgeClient.QuerySingle(context.TODO(), `
@@ -70,8 +70,7 @@ FILTER .name = "Adrien";
 
 *Note that I only get the name and email, so other value will be empty. Like Avatar is ""*
 
-Here a more advance example where I get an array of Message with other type inside.
-
+Get an array of Message with other type inside.
 ```go
 var Messages []Message
 err = edgeClient.Query(context.TODO(), `
