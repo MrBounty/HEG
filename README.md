@@ -24,11 +24,23 @@ EdgeDB is an open-source modern database designed with developer experience in m
 ## HTMX
 HTMX allows HTML attributes to send requests to the server that return HTML and use it to update parts of the page. This reduces the need for complex JavaScript frameworks for apps with small to medium interactivity. While HTMX does not eliminate JavaScript entirely, it significantly reduces the amount required by removing the need of a framework. [Learn more](https://htmx.org/)
 
+# Go + HTMX
+
+TODO
+
 # EdgeDB + Go
 
-Go and EdgeDB manage data in similar way, through the usage of type and struct. Making it very easy to manipualte data.  
+## Start a DB
+First thing to do is to follow the [EdgeDB quickstart](https://docs.edgedb.com/get-started/quickstart). It will install necessary stuff. You sould end up with something like that:
+```
+├── edgedb.toml
+├── dbschema
+│   ├── default.esdl
+│   ├── migrations
+```
 
-### Defining a Type in EdgeDB
+## Defining Type
+You define type in `default.esdl` like that:
 ```esdl
 type User {
     name: str;
@@ -37,9 +49,10 @@ type User {
     setting: Setting; # This is a link to another Setting type
 }
 ```
+[Learn more about EdgeDB schema](https://docs.edgedb.com/database/datamodel)
 [Learn more about EdgeDB type](https://docs.edgedb.com/database/datamodel/objects)
 
-### Defining a Type in GO
+You also define a type in go in a similar way.
 ```go
 type User struct {
     ID       edgedb.UUID `edgedb:"id"`
@@ -50,12 +63,7 @@ type User struct {
 }
 ```
 
-## Links
-EdgeDB support links for easy relationship. For example, a `User` having a unique `Setting` or a `Cart` with multiple `Item`.
-
-[Learn more about links](https://docs.edgedb.com/database/datamodel/links)
-
-## Examples
+## Fetch data
 Get User:
 ```go
 var user User
@@ -148,7 +156,7 @@ module default {
 
 [Learn more](https://docs.edgedb.com/guides/auth)
 
-## Use EdgeDB with Go
+## Manage the EdgeDB client
 In `EdgeDatabase.go` first define all your types that are also defined in EdgeDB. And then I do a `init` function to create two global variable `edgeGlobalClient` and `edgeCtx`.
 
 ```go
