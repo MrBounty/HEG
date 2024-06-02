@@ -115,7 +115,8 @@ Here's a simple example of using Go templates to loop over all `Items` and displ
 *Note: I use the Django template because I like it but the go and other one are good too. [Choose the one you prefer.](https://docs.gofiber.io/guide/templates/)* [Or learn more abour Django template](https://docs.djangoproject.com/en/5.0/ref/templates/language/)
 
 ## Authentification
-EdgeDB have a built-in authentification. You can use commun provider like Google, Github, Apple, email and more
+EdgeDB have a built-in authentification. You can use commun provider like Google, Github, Apple, email and more. You can do it by defining 3 routes in out app:
+- ``
 
 [Learn more](https://docs.edgedb.com/guides/auth)
 
