@@ -8,7 +8,7 @@ You might feel overwhelmed by the variety of frameworks and libraries available 
 
 In this landscape, JavaScript is unavoidable. Whether you like it or not, mastering a JavaScript framework like React or Angular is often seen as essential. However, for those who prefer simplicity and minimalism, there is an alternative: HTMX.
 
-*Note: JavaScript is fine, I just don't like it being mandatory.*
+*Note: JavaScript is fine, I just don't like big frameworks. Or more precisely the overall unnecessary hidden complexity behind them.*
 
 # Stack Philosophy: Simplicity
 The HEG tech stack is built on simplicity. My definition of simplicity is: **code/structure that can be understood without documentation and minimal comments in less than like 20 seconds** but that's for code, here we are talking tech stack but this philosophy guided my choice of technologies.
@@ -65,7 +65,7 @@ SELECT User {
     email
   } 
 FILTER .name = "Adrien";
-`, , &user)
+`, &user)
 ```
 
 *Note that I only get the name and email, so other value will be empty. Like Avatar is ""*
@@ -115,31 +115,96 @@ Here's a simple example of using Go templates to loop over all `Items` and displ
 *Note: I use the Django template because I like it but the go and other one are good too. [Choose the one you prefer.](https://docs.gofiber.io/guide/templates/)* [Or learn more abour Django template](https://docs.djangoproject.com/en/5.0/ref/templates/language/)
 
 ## Authentification
-EdgeDB have a built-in authentification. You can use commun provider like Google, Github, Apple, email and more. You can do it by defining 3 routes in out app:
-- ``
+EdgeDB have a built-in auth UI. You can configure it in the auth section of the EdgeDB UI. This is the flow:
+
+1. The user click on a button and is redirect to `/signin`.
+2. `/signin` generate a PKCE and verifier. It save the verifier in a cookie and redirect to the built-in UI of your database with the PKCE.
+3. The user can choose between different auth provider like google or github.
+4. The user is redirect to `callbackSignup` if unknow (first time login) or `/callback` if the user is know.
+5. The user know have a cookie that you need to rename (by default `my-cookie-name-auth-token` in the example).
+6. Every request that the user make, use the cookie to authenticate the user on the global EdgeDB client see next section.
+7. To signout, delete the cookie.
+
+Add those route using the 'authentification_example.go' file. 
+```go
+app.Get("/signin", handleUiSignIn)
+app.Get("/signout", handleSignOut)
+app.Get("/callback", handleCallback)
+app.Get("/callbackSignup", handleCallbackSignup)
+```
+
+You also need to enable the auth extension of EdgeDB and create a global currentUser.
+
+```esdl
+using extension auth;
+
+module default {
+    global currentUser := (
+        assert_single((
+        select User
+        filter .identity = global ext::auth::ClientTokenIdentity
+        ))
+    );
+```
 
 [Learn more](https://docs.edgedb.com/guides/auth)
 
-## Deployment
-You can use Google Cloud run, it's ok, I tried. But I highly recommand [fly.io](https://fly.io/) because of how efficient Go is.  
-You can easily run a decently optimize Go app with just a 1 shared + 256 MB of RAM. Making it the cheapest option available at just 2€/mo! So if in average a user spend 4h per day, you would pay around 0.30€/mo!
-To compare with a flask app running on cloud run. Idk if I set up it wrong, but I would pay like 20x this, if not more. 
+## Use EdgeDB with Go
+In `EdgeDatabase.go` first define all your types that are also defined in EdgeDB. And then I do a `init` function to create two global variable `edgeGlobalClient` and `edgeCtx`.
 
-Here the docker file I use to build the image (TODO Add file link)
+```go
+var edgeCtx context.Context
+var edgeGlobalClient *edgedb.Client
+
+func init() {
+	var ctx = context.Background()
+	client, err := edgedb.CreateClient(ctx, edgedb.Options{})
+	if err != nil {
+		fmt.Println("Error connecting to edgedb")
+		panic(err)
+	}
+
+	edgeCtx = ctx
+	edgeGlobalClient = client
+}
+```
+
+You can then call the global variable from anywhere:
+```go
+var user User
+edgeGlobalClient.QuerySingle(edgeCtx, `
+SELECT User {
+    name,
+    email
+  } 
+FILTER .name = "Adrien"
+LIMIT 1;
+`, &user)
+```
+
+If you use authentification, you need to provide the auth cookie like:
+```go
+var lastArea Area
+err := edgeGlobalClient.WithGlobals(map[string]interface{}{"ext::auth::client_token": c.Cookies("my-auth-token")}).QuerySingle(edgeCtx, `
+SELECT global currentUser;
+`, &lastArea)
+```
+
+And that's it, you can now query aywhere in your app and every request is potentialy authentify, so no risk of auth crossing of stuffs like that. And don't worry about performance, it is think to be use like that, it cost nothing.
+
+*Note: A function named init in go in any file will be run one time at the beguinning.*
+
+## Deployment
+For the deployment you can use anything as it is just a docker container. It is a really small one too, for example my app [JADE](https://jade.bouvai.com) is a 31MB container that run perfectly on a 1 shared CPU and 256MB or RAM. So the hosting part isn't an issue as it would cost near to nothing on any cloud platform.
+
+I personally use [fly.io](fly.io) because it is perfect for me. It do exactly what I want and nothing more, it is easy to use and keep the same philosophy as HEG.
+
+TODO: Tuto to deploy an app on fly
 
 # Performance
-I wanted to take some time talking about performance. Because making simple thing is nice and all, but sometime complex problem require complex solution.  
-But that's kind of for later, here we are more planning how we will build our app and the philisophy behind it. Not how to solve the problem itself! This can be complex.  
-
-So like I said, the philosophy of HEG is to not have any state, either on the server nor the client. The master state is the database and the client state is the HTML itself! Not some variables in JavaScript! #HATEOAS
-Meaning that our routes are only getting data from the database and then sending HTML. Meaning that the server use nothing basically. It is cheap af. I can run it on fly.io on a 1 shared cpu and 256MB of RAM and I not even use half the RAM, I don't even more than 1% of the CPU. Yes, not even 1%, I'm around 0.01-0.6%!
-
-Here a image of an average app running on fly.io activelly used by a user:
-![alt text](https://github.com/MrBounty/HEG/blob/main/fly_dashboard.png)
+TODO
 
 # Aditional tech
-Obviously you need more tech for specific things. Here a list of some usefull one.
-
 - [Stripe](https://stripe.com/) for payment
 
 ### Frontend toolkit
