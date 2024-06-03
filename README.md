@@ -102,7 +102,7 @@ type User {
     setting: Setting; # This is a link to another Setting type
 }
 ```
-[Learn more about EdgeDB schema](https://docs.edgedb.com/database/datamodel)
+[Learn more about EdgeDB schema](https://docs.edgedb.com/database/datamodel)  
 [Learn more about EdgeDB type](https://docs.edgedb.com/database/datamodel/objects)
 
 Here a more advance example if default value:
@@ -134,7 +134,7 @@ type User struct {
 ```
 
 ## Fetching data
-Get User:
+Fetching data is a 2 step process in Go. First you create an empty variable of the type to extract, then you populate it using a query. Here an example to fetch one client:
 ```go
 var user User
 edgeClient.QuerySingle(context.TODO(), `
@@ -142,13 +142,14 @@ SELECT User {
     name,
     email
   } 
-FILTER .name = "Adrien";
+FILTER .name = "Adrien"
+LIMIT 1;
 `, &user)
 ```
 
-*Note that I only get the name and email, so other value will be empty. Like Avatar is ""*
+*Note that I only get the name and email, so other value will be empty. Like Avatar will be ""*
 
-Get an array of Message with other type inside.
+You can also fetch an array of type and use link.
 ```go
 var Messages []Message
 err = edgeClient.Query(context.TODO(), `
@@ -176,17 +177,19 @@ ORDER BY .date ASC
 
 *Note that .conversation.user, meaning 2 relationship! It would be a nightmare to do in SQL.*
 
-*Note: I use the Django template because I like it but the go and other one are good too. [Choose the one you prefer.](https://docs.gofiber.io/guide/templates/)* [Or learn more abour Django template](https://docs.djangoproject.com/en/5.0/ref/templates/language/)
+The query language of EdgeDB is named EdgeQL, here are some links for more infos (higly recommand the interactive tutorial):  
+[Learn more about EdgeQL](https://www.edgedb.com/showcase/edgeql)  
+[Interactive EdgeQL tutotial](https://docs.edgedb.com/tutorial)
 
 ## Authentification
-EdgeDB have a built-in auth UI. You can configure it in the auth section of the EdgeDB UI. This is the flow:
+EdgeDB has a built-in auth UI. You can configure it in the auth section of the EdgeDB UI. This is the flow:
 
 1. The user click on a button and is redirect to `/signin`.
 2. `/signin` generate a PKCE and verifier. It save the verifier in a cookie and redirect to the built-in UI of your database with the PKCE.
 3. The user can choose between different auth provider like google or github.
 4. The user is redirect to `callbackSignup` if unknow (first time login) or `/callback` if the user is know.
-5. The user know have a cookie that you need to rename (by default `my-cookie-name-auth-token` in the example).
-6. Every request that the user make, use the cookie to authenticate the user on the global EdgeDB client see next section.
+5. The user now have a cookie that you need to rename (by default `my-cookie-name-auth-token` in the example).
+6. Every request that the user make, use the cookie to authenticate the user on the global EdgeDB client (see next section).
 7. To signout, delete the cookie.
 
 Add those route using the 'authentification_example.go' file. 
@@ -211,7 +214,7 @@ module default {
     );
 ```
 
-*Note: You will see nect section how to use `currentUser`
+*Note: You will see next section how to use `currentUser`
 [Learn more](https://docs.edgedb.com/guides/auth)
 
 ## Managing the EdgeDB client
@@ -247,7 +250,7 @@ LIMIT 1;
 `, &user)
 ```
 
-If you use authentification, you need to provide the auth cookie to get access to the global `currentUser`:
+If you use authentification, you need to provide the auth cookie to get access to the global variable `currentUser`:
 ```go
 var lastArea Area
 err := edgeGlobalClient.WithGlobals(map[string]interface{}{"ext::auth::client_token": c.Cookies("my-auth-token")}).QuerySingle(edgeCtx, `
@@ -261,18 +264,20 @@ SELECT User {
     name,
     email
   } 
-FILTER .friend = global currentUser
+FILTER .friend = global currentUser;
 ```
 
 And that's it, you can now query aywhere in your app and every request is potentialy authentify, so no risk of auth crossing of stuffs like that. And don't worry about performance, it is think to be use like that, it cost nothing.
 
-*Note: A function named init in go in any file will be run one time at the beguinning.*
+*Note: A function named init in go in any file will be run one time at the start of the server.*
 
 # Go + HTMX + JS
 
-Ok now that we have setup everything, we need to start building the app. Idk what you are trying to build but I will try to give my idea of it.
+Ok now that we have setup everything, we need to start building the app. Idk what you are trying to build but I will try stay consistent for any kind of app.
 
 ## Template
+
+*Note: I use the Django template because I like it but the go and other one are good too. [Choose the one you prefer.](https://docs.gofiber.io/guide/templates/)* [Or learn more abour Django template](https://docs.djangoproject.com/en/5.0/ref/templates/language/)
 
 ## HTMX or JS
 You will need to ask yourself that a lot because HTMX isn't good for everything (JS either but they don't want to admite it).
