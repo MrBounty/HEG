@@ -26,6 +26,18 @@ The HEG tech stack is built on simplicity. My definition of simplicity is: **cod
   - Authentification
   - Managing the EdgeDB client
 - Go + HTMX
+  - Template
+  - HTMX or JS ?
+  - Using HTMX
+  - Using JS
+- Deployment
+  - Dockerize the app
+  - Create an app on fly.io
+  - Deploy update
+  - Monitor
+  - Scale
+- Performance
+- Other techs
 
 # The HEG Tech Stack
 
@@ -231,7 +243,17 @@ And that's it, you can now query aywhere in your app and every request is potent
 
 Ok now that we have setup everything, we need to start building the app. Idk what you are trying to build but I will try to give my idea of it.
 
-## Using HTMX
+## Template
+
+## HTMX or JS
+You will need to ask yourself that a lot because HTMX isn't good for everything (JS either but they don't want to admite it).
+
+So how do I choose what to use ? UX. UX, UX, UX. At the end of the day, the user don't care what tech you use, how it's done or anything. The user care ony about the User Experience. You need to ask yourself:
+
+*Is this action can take 0.2s to load or it need to be instant to prevent building frustration ?*
+
+If yes, take HTMX, if no, take JS.  
+For example a popover button. It need to be display instantly... TODO
 
 ### The Five Ws
 
@@ -273,6 +295,15 @@ Here's a simple example of using Go templates to loop over all `Items` and displ
     {% endfor %}
 </ul>
 ```
+
+### When
+TODO
+
+### With
+TODO
+
+### What
+TODO
 
 # Deployment
 For the deployment you can use anything as it is just a docker container [Dockerfile](https://github.com/MrBounty/HEG/edit/main/Dockerfile). It is a really small one too, for example my app [JADE](https://jade.bouvai.com) is a 31MB container that run perfectly on a 1 shared CPU and 256MB or RAM on fly.io. So the hosting part isn't an issue as it would cost near to nothing on any cloud platform.
