@@ -19,12 +19,13 @@ The HEG tech stack is built on simplicity. My definition of simplicity is: **cod
   - Go
   - EdgeDB
   - HTMX
-- GO + EdgeDB
+- Go + EdgeDB
   - Starting a Database
   - Defining type
   - Fetching data
   - Authentification
-  - 
+  - Managing the EdgeDB client
+- Go + HTMX
 
 # The HEG Tech Stack
 
@@ -172,7 +173,7 @@ module default {
 *Note: You will see nect section how to use `currentUser`
 [Learn more](https://docs.edgedb.com/guides/auth)
 
-## Manage the EdgeDB client
+## Managing the EdgeDB client
 In `EdgeDatabase.go` first define all your types that are also defined in EdgeDB. And then I do a `init` function to create two global variable `edgeGlobalClient` and `edgeCtx`.
 
 ```go
@@ -192,7 +193,7 @@ func init() {
 }
 ```
 
-You can then call the global variable from anywhere:
+You can then call the global client from anywhere:
 ```go
 var user User
 edgeGlobalClient.QuerySingle(edgeCtx, `
