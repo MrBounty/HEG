@@ -127,7 +127,7 @@ SELECT Message {
         }
     }
   } 
-FILTER .conversation = global currentConversation AND .conversation.user = global currentUser
+FILTER .conversation.user = global currentUser
 ORDER BY .date ASC
 `, &Messages)
 ```
