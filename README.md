@@ -50,6 +50,35 @@ EdgeDB is an open-source modern database designed with developer experience in m
 ## HTMX
 HTMX allows HTML attributes to send requests to the server that return HTML and use it to update parts of the page. This reduces the need for complex JavaScript frameworks for apps with small to medium interactivity. While HTMX does not eliminate JavaScript entirely, it significantly reduces the amount required by removing the need of a framework. [Learn more](https://htmx.org/)
 
+# Naming convention
+Before everything here an idea of the naming convention I used:
+- `thisIsAnExample`: For Go variable
+- `ThisIsAnExample`: For Go type and functions
+- `this-is-an-id`: For ids in the HTML
+
+TODO: Update
+
+# Folder structure
+
+```
+├── edgedb.toml
+├── main.go
+├── otherGolangFile.go
+├── Dockerfile
+├── dbschema
+│   ├── default.esdl
+│   ├── migrations
+├── static
+│   ├── style.css
+│   ├── image.png
+├── views
+│   ├── layout
+│   │   ├──main.html
+│   ├── partials
+│   │   ├──partial1.html
+│   ├── page1.html
+```
+
 # Go + EdgeDB
 
 ## Starting a Database
@@ -250,10 +279,13 @@ You will need to ask yourself that a lot because HTMX isn't good for everything 
 
 So how do I choose what to use ? UX. UX, UX, UX. At the end of the day, the user don't care what tech you use, how it's done or anything. The user care ony about the User Experience. You need to ask yourself:
 
-*Is this action can take 0.2s to load or it need to be instant to prevent building frustration ?*
+*Can this action take 0.2s or it need to be instant to prevent building frustration ?*
 
 If yes, take HTMX, if no, take JS.  
-For example a popover button. It need to be display instantly... TODO
+For example a popover button [as for example a recent Rails "drama"](https://x.com/noahflk/status/1795758603577545035). It need to be display instantly!  
+Otherwise it will very quickly build a lot of frustration, and we aren't objectif when frustrated, this is something you absolutly need to avoid because users will avoid your app. It is better to remove a feature that build up frustration. 
+
+## Using HTMX
 
 ### The Five Ws
 
@@ -305,6 +337,26 @@ TODO
 ### What
 TODO
 
+## Using JS
+So JavaScript. I don't like it, I made it clear enough I think but like said in the intro:
+
+*JavaScript is fine, I just don't like big frameworks looking mandatory. Or more precisely the overall unnecessary hidden complexity behind them.*
+
+So we need some JavaScript for a good UX, exempt for specific app that need very low reactivity, you will need to sparkle JS here and there. So how do I use JS in my app ?  
+I try to keep things simple, like everything else. Let's take an example: I have a chatbot with a send button. I want the button to be disable if there is no text in the input area. I will put an event listener to it. 
+
+```js
+const textarea = document.getElementById('chat-input-textarea');
+textarea.addEventListener('oninput', function () {
+	document.getElementById('chat-input-send-btn').disabled.disabled = textarea.value.trim().length === 0;
+});
+```
+
+In this example, everytime the text inside the element with the id `chat-input-textarea` is changed, is update the element with the id `chat-input-btn`. This is the kind of thing you simply cannot pass by the server. Image evertime you press a key it take 1s to load ? Or even 0.1s. Nobody want to use an app like that.
+
+Here a non exaustive list of stuff I use in JS in my app. Note that this is all I know about JS, I choosed HTMX to not need to learn complex JS. But the basic stuff to interact with the HTML/DOM are necessary (still learning):
+- `document.getElementById('my-id')`: Get an element based on the id. I like using `-` in 
+
 # Deployment
 For the deployment you can use anything as it is just a docker container [Dockerfile](https://github.com/MrBounty/HEG/edit/main/Dockerfile). It is a really small one too, for example my app [JADE](https://jade.bouvai.com) is a 31MB container that run perfectly on a 1 shared CPU and 256MB or RAM on fly.io. So the hosting part isn't an issue as it would cost near to nothing on any cloud platform.
 
@@ -314,6 +366,9 @@ TODO: Tuto to deploy an app on fly
 
 # Performance
 TODO: Need data with more users
+
+# Other advices
+- Dog food your app (you are the user of your app)
 
 # Aditional tech
 - [Stripe](https://stripe.com/) for payment
