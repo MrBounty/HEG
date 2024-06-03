@@ -13,6 +13,19 @@ In this landscape, JavaScript is unavoidable. Whether you like it or not, master
 # Stack Philosophy: Simplicity
 The HEG tech stack is built on simplicity. My definition of simplicity is: **code/structure that can be understood without documentation and minimal comments in less than like 20 seconds** but that's for code, here we are talking tech stack but this philosophy guided my choice of technologies.
 
+# Agenda
+
+- The HEG Tech Stack
+  - Go
+  - EdgeDB
+  - HTMX
+- GO + EdgeDB
+  - Starting a Database
+  - Defining type
+  - Fetching data
+  - Authentification
+  - 
+
 # The HEG Tech Stack
 
 ## Go (Golang)
@@ -26,7 +39,7 @@ HTMX allows HTML attributes to send requests to the server that return HTML and 
 
 # Go + EdgeDB
 
-## Start a DB
+## Starting a Database
 First thing to do is to follow the [EdgeDB quickstart](https://docs.edgedb.com/get-started/quickstart). It will install necessary stuff. You sould end up with something like that:
 ```
 ├── edgedb.toml
@@ -78,7 +91,7 @@ type User struct {
 }
 ```
 
-## Fetch data
+## Fetching data
 Get User:
 ```go
 var user User
@@ -156,6 +169,7 @@ module default {
     );
 ```
 
+*Note: You will see nect section how to use `currentUser`
 [Learn more](https://docs.edgedb.com/guides/auth)
 
 ## Manage the EdgeDB client
@@ -191,12 +205,21 @@ LIMIT 1;
 `, &user)
 ```
 
-If you use authentification, you need to provide the auth cookie like:
+If you use authentification, you need to provide the auth cookie to get access to the global `currentUser`:
 ```go
 var lastArea Area
 err := edgeGlobalClient.WithGlobals(map[string]interface{}{"ext::auth::client_token": c.Cookies("my-auth-token")}).QuerySingle(edgeCtx, `
 SELECT global currentUser;
 `, &lastArea)
+```
+
+You can then use the global `currentUser` anywhere in your query. For example:
+```edgeql
+SELECT User {
+    name,
+    email
+  } 
+FILTER .friend = global currentUser
 ```
 
 And that's it, you can now query aywhere in your app and every request is potentialy authentify, so no risk of auth crossing of stuffs like that. And don't worry about performance, it is think to be use like that, it cost nothing.
