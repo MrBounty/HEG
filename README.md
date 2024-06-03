@@ -11,7 +11,7 @@ In this landscape, JavaScript is unavoidable. Whether you like it or not, master
 *Note: JavaScript is fine, I just don't like big frameworks looking mandatory. Or more precisely the overall unnecessary hidden complexity behind them.*
 
 # Stack Philosophy: Simplicity
-The HEG tech stack is built on simplicity. My definition of simplicity is: **code/structure that can be understood without documentation and minimal comments in less than like 20 seconds** but that's for code, here we are talking tech stack but this philosophy guided my choice of technologies.
+The HEG tech stack is built on simplicity. My definition of simplicity is something you understand almost instantly, even months or years later. This philosophy guided my choice of technologies.
 
 # Agenda
 
