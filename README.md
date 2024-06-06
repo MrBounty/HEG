@@ -50,6 +50,11 @@ EdgeDB is an open-source modern database designed with developer experience in m
 ## HTMX
 HTMX allows HTML attributes to send requests to the server that return HTML and use it to update parts of the page. This reduces the need for complex JavaScript frameworks for apps with small to medium interactivity. While HTMX does not eliminate JavaScript entirely, it significantly reduces the amount required by removing the need of a framework. [Learn more](https://htmx.org/)
 
+# Principles 
+
+- Data in database
+- TODO
+
 # Naming convention
 Before everything here an idea of the naming convention I used:
 - `thisIsAnExample`: For Go variable
