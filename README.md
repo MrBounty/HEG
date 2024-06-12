@@ -374,6 +374,60 @@ I personally use [fly.io](fly.io) because it is perfect for me. It do exactly wh
 
 TODO: Tuto to deploy an app on fly
 
+# Web Assembly
+
+I started using a bit of webassembly for some parts. I did a really small wrapper that I may improve in the future.
+
+```js
+// Get all elements with hgo-run attribute
+        var elements = document.querySelectorAll('[hgo-run]');
+
+        // Loop through each element
+        elements.forEach(function (element) {
+            // Add event listener based on hgo-trigger attribute
+            var trigger = element.getAttribute('hgo-trigger') || 'click';
+            element.addEventListener(trigger, function () {
+                var sourceId = element.getAttribute('hgo-source') || element.id;
+                var sourceElement = document.getElementById(sourceId);
+                // Get target element
+                var targetId = element.getAttribute('hgo-target') || element.id;
+                var targetElement = document.getElementById(targetId);
+
+                // Get the value of the hgo-run attribute
+                var hgoRunValue = element.getAttribute('hgo-run');
+
+                // Get the value of the hgo-swap attribute
+                var hgoSwapValue = element.getAttribute('hgo-swap') || 'innerHTML';
+
+                // Run the function and swap the value
+                console.log(sourceElement.innerHTML);
+                targetElement[hgoSwapValue] = window[hgoRunValue](sourceElement.innerHTML);
+            });
+        });
+```
+
+It can be use in a similare way directly in HTML:
+```html
+<button id="btn" hgo-run="htmlTransfo" hgo-target="my-target" hgo-trigger="click" hgo-source="my-target"
+	hgo-swap="innerHTML">Click !</button>
+<div id="my-target">0</div>
+```
+
+So in this example it will run the `htmlTransfo` go function.
+```go
+func htmlTransfo(this js.Value, inputs []js.Value) interface{} {
+	fmt.Println("Input:", inputs[0].String())
+	// Get the int value from the input.
+	i, err := strconv.Atoi(inputs[0].String())
+	if err != nil {
+		return "Error"
+	}
+	return i + 1
+}
+```
+
+TODO: Explain how to build the .wasm and import it to the app.
+
 # Performance
 TODO: Need data with more users
 
