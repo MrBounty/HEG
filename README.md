@@ -37,6 +37,7 @@ The HEG tech stack is built on simplicity. My definition of simplicity is someth
   - Monitor
   - Scale
 - Performance
+- Web Assembly
 - Other techs
 
 # The HEG Tech Stack
@@ -380,36 +381,36 @@ I started using a bit of webassembly for some parts. I did a really small wrappe
 
 ```js
 // Get all elements with hgo-run attribute
-        var elements = document.querySelectorAll('[hgo-run]');
+var elements = document.querySelectorAll('[hgo-run]');
 
-        // Loop through each element
-        elements.forEach(function (element) {
-            // Add event listener based on hgo-trigger attribute
-            var trigger = element.getAttribute('hgo-trigger') || 'click';
-            element.addEventListener(trigger, function () {
-                var sourceId = element.getAttribute('hgo-source') || element.id;
-                var sourceElement = document.getElementById(sourceId);
-                // Get target element
-                var targetId = element.getAttribute('hgo-target') || element.id;
-                var targetElement = document.getElementById(targetId);
+// Loop through each element
+elements.forEach(function (element) {
+    // Add event listener based on hgo-trigger attribute
+    var trigger = element.getAttribute('hgo-trigger') || 'click';
+    element.addEventListener(trigger, function () {
+	var sourceId = element.getAttribute('hgo-source') || element.id;
+	var sourceElement = document.getElementById(sourceId);
+	// Get target element
+	var targetId = element.getAttribute('hgo-target') || element.id;
+	var targetElement = document.getElementById(targetId);
 
-                // Get the value of the hgo-run attribute
-                var hgoRunValue = element.getAttribute('hgo-run');
+	// Get the value of the hgo-run attribute
+	var hgoRunValue = element.getAttribute('hgo-run');
 
-                // Get the value of the hgo-swap attribute
-                var hgoSwapValue = element.getAttribute('hgo-swap') || 'innerHTML';
+	// Get the value of the hgo-swap attribute
+	var hgoSwapValue = element.getAttribute('hgo-swap') || 'innerHTML';
 
-                // Run the function and swap the value
-                console.log(sourceElement.innerHTML);
-                targetElement[hgoSwapValue] = window[hgoRunValue](sourceElement.innerHTML);
-            });
-        });
+	// Run the function and swap the value
+	console.log(sourceElement.innerHTML);
+	targetElement[hgoSwapValue] = window[hgoRunValue](sourceElement.innerHTML);
+    });
+});
 ```
 
 It can be use in a similare way directly in HTML:
 ```html
 <button id="btn" hgo-run="htmlTransfo" hgo-target="my-target" hgo-trigger="click" hgo-source="my-target"
-	hgo-swap="innerHTML">Click !</button>
+    hgo-swap="innerHTML">Click !</button>
 <div id="my-target">0</div>
 ```
 
