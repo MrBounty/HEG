@@ -11,7 +11,12 @@ In this landscape, JavaScript is unavoidable. Whether you like it or not, master
 *Note: JavaScript is fine, I just don't like big frameworks looking mandatory. Or more precisely the overall unnecessary hidden complexity behind them.*
 
 # Stack Philosophy: Simplicity
-The HEG tech stack is built on simplicity. My definition of simplicity is something you understand almost instantly, even months or years later. This philosophy guided my choice of technologies and how I build and organise my app.
+The HEG tech stack is built with simplicity and HATEOAS in mind. 
+
+The state of applications in HEG is the HTML itself. There is no variable in JS that is then use to fill the HTML, the HTML itself IS the state.  
+There is no state either on the server. When a route need data, it take it from the database.
+
+So the only 2 places where you can store data/state are either the HTML or the Database. Everything else (JavaScript and Golang route), are just here to update those using those as input.
 
 # Agenda
 
@@ -25,7 +30,7 @@ The HEG tech stack is built on simplicity. My definition of simplicity is someth
   - Fetching data
   - Authentification
   - Managing the EdgeDB client
-- Go + HTMX
+- Go + HTMX + JS
   - Template
   - HTMX or JS ?
   - Using HTMX
@@ -49,20 +54,14 @@ Go, developed by Google, embodies simplicity and productivity so how can't I cho
 EdgeDB is an open-source modern database designed with developer experience in mind. Its queries integrate seamlessly with Go, using similar data structures and types. EdgeDB simplifies complex SQL queries and offers numerous quality-of-life features with a UI to explore and query data from a browser. (And a cloud service) [Learn more](https://www.edgedb.com/)
 
 ## HTMX
-HTMX allows HTML attributes to send requests to the server that return HTML and use it to update parts of the page. This reduces the need for complex JavaScript frameworks for apps with small to medium interactivity. While HTMX does not eliminate JavaScript entirely, it significantly reduces the amount required by removing the need of a framework. [Learn more](https://htmx.org/)
-
-# Principles 
-
-- Data in database
-- TODO
+HTMX allows HTML attributes to send HTTP requests to the server that return HTML and use it to update parts of the page. This reduces the need for complex JavaScript frameworks for apps with small to medium interactivity. While HTMX does not eliminate JavaScript entirely, it significantly reduces the amount required by removing the need of a framework. [Learn more](https://htmx.org/)
 
 # Naming convention
 Before everything here an idea of the naming convention I used:
-- `thisIsAnExample`: For Go variable
-- `ThisIsAnExample`: For Go type and functions
-- `this-is-an-id`: For ids in the HTML
-
-TODO: Update
+- `thisIsAnExample`: For Go variable, and global EdgeDB variable
+- `ThisIsAnExample`: For Go type and functions, and EdgeDB type
+- `this-is-an-id`: For ids in HTML
+- `this_is_an_example`: For variable in EdgeDB type
 
 # Folder structure
 
@@ -111,7 +110,7 @@ type User {
 [Learn more about EdgeDB schema](https://docs.edgedb.com/database/datamodel)  
 [Learn more about EdgeDB type](https://docs.edgedb.com/database/datamodel/objects)
 
-Here a more advance example if default value:
+Here a more advance example with default value:
 ```esdl
 type Conversation {
 	required name: str;
@@ -140,7 +139,7 @@ type User struct {
 ```
 
 ## Fetching data
-Fetching data is a 2 step process in Go. First you create an empty variable of the type to extract, then you populate it using a query. Here an example to fetch one client:
+Fetching data is a 2 step process in Go. First you create an empty variable of the type to extract, then you populate it using a query. Here an example to fetch one user:
 ```go
 var user User
 edgeClient.QuerySingle(context.TODO(), `
@@ -153,7 +152,7 @@ LIMIT 1;
 `, &user)
 ```
 
-*Note that I only get the name and email, so other value will be empty. Like Avatar will be ""*
+*Note that I only get the name and email, so other value will be empty. Like Avatar will be "" and ID 0000-0000-0000-0000*
 
 You can also fetch an array of type and use link.
 ```go
@@ -181,7 +180,7 @@ ORDER BY .date ASC
 `, &Messages)
 ```
 
-*Note that .conversation.user, meaning 2 relationship! It would be a nightmare to do in SQL.*
+*Note the `.conversation.user` as filter, meaning 2 relationship! It would be a nightmare to do in SQL.*
 
 The query language of EdgeDB is named EdgeQL, here are some links for more infos (higly recommand the interactive tutorial):  
 [Learn more about EdgeQL](https://www.edgedb.com/showcase/edgeql)  
@@ -206,7 +205,7 @@ app.Get("/callback", handleCallback)
 app.Get("/callbackSignup", handleCallbackSignup)
 ```
 
-You also need to enable the auth extension of EdgeDB and create a global currentUser.
+You also need to enable the auth extension of EdgeDB and create a global currentUser in `default.esdl`.
 
 ```esdl
 using extension auth;
@@ -220,11 +219,11 @@ module default {
     );
 ```
 
-*Note: You will see next section how to use `currentUser`
-[Learn more](https://docs.edgedb.com/guides/auth)
+*Note: You will see next section how to use `currentUser`*  
+[Learn more about Auth in EdgeDB](https://docs.edgedb.com/guides/auth)
 
 ## Managing the EdgeDB client
-In `EdgeDatabase.go` first define all your types that are also defined in EdgeDB. And then I do a `init` function to create two global variable `edgeGlobalClient` and `edgeCtx`.
+In `EdgeDatabase.go` first define all your types that are also defined in EdgeDB. And then do a `init` function to create two global variable `edgeGlobalClient` and `edgeCtx`.
 
 ```go
 var edgeCtx context.Context
@@ -273,7 +272,7 @@ SELECT User {
 FILTER .friend = global currentUser;
 ```
 
-And that's it, you can now query aywhere in your app and every request is potentialy authentify, so no risk of auth crossing of stuffs like that. And don't worry about performance, it is think to be use like that, it cost nothing.
+And that's it, you can now query anywhere in your app and every request is potentialy authentify, so no risk of auth crossing of stuffs like that. And don't worry about performance, it is think to be use like that, it cost nothing.
 
 *Note: A function named init in go in any file will be run one time at the start of the server.*
 
@@ -283,7 +282,20 @@ Ok now that we have setup everything, we need to start building the app. Idk wha
 
 ## Template
 
-*Note: I use the Django template because I like it but the go and other one are good too. [Choose the one you prefer.](https://docs.gofiber.io/guide/templates/)* [Or learn more abour Django template](https://docs.djangoproject.com/en/5.0/ref/templates/language/)
+*Note: I use the Django template because I like it but the go and other one are good too.*  
+[Choose the one you prefer.](https://docs.gofiber.io/guide/templates/)  
+[Or learn more abour Django template](https://docs.djangoproject.com/en/5.0/ref/templates/language/)
+
+To use template with GoFiber, you can use the engine and add it to your app. Then you can use the `Render` function to render any templates. You can also use `pongo2.Template` directly.
+
+```go
+myTemplate = pongo2.Must(pongo2.FromFile("views/partials/my-template-file.html"))
+
+out, err := myTemplate.Execute(pongo2.Context{"Text": input})
+if err != nil {
+	return c.SendString(err.Error())
+}
+```
 
 ## HTMX or JS
 You will need to ask yourself that a lot because HTMX isn't good for everything (JS either but they don't want to admite it).
@@ -293,7 +305,8 @@ So how do I choose what to use ? UX. UX, UX, UX. At the end of the day, the user
 *Can this action take 0.2s or it need to be instant to prevent building frustration ?*
 
 If yes, take HTMX, if no, take JS.  
-For example a popover button [as for example a recent Rails "drama"](https://x.com/noahflk/status/1795758603577545035). It need to be display instantly!  
+
+Like a popover button [as for example a recent Rails "drama"](https://x.com/noahflk/status/1795758603577545035). It need to be display instantly!  
 Otherwise it will very quickly build a lot of frustration, and we aren't objectif when frustrated, this is something you absolutly need to avoid because users will avoid your app. It is better to remove a feature that build up frustration. 
 
 ## Using HTMX
@@ -307,7 +320,7 @@ I like to imagine each element using HTMX answering this:
 - With ? *The data attach*
 - What ? *The place to put the response*
 
-For more information, please check the HTMX docs, it is well build, easy and fast to read. [Link](https://htmx.org/docs/)
+For more information, please check the HTMX docs, it is well written, easy and fast to read. [Link](https://htmx.org/docs/)
 
 ### Where
 
@@ -320,53 +333,80 @@ Click me!
 </button>
 ```
 
-This will send a POST request to `/clicked` and use the response. By default replacing it inside with the response. You can alse use `hx-get`, `hx-delete`, `hx-put`, `hx-patch`.
+This will send a POST request to `/clicked` and use the response. By default replacing it innerHTML with the response. You can alse use `hx-get`, `hx-delete`, `hx-put`, `hx-patch`.
 
 ### Who
 
-The target of the request is by defaut the element making the request
+The target of the request is by defaut the element making the request but you can also use any CSS selector. Here some example:
+- `#my-id`: Find an element with a specific id
+- `.my-class`: Find all delement with the class `my-class`
+- `closest`, `next`, `previous`: To get one element from a list of element (Only in HTMX, not classics CSS selectors)
+- Ect
 
-## Templates
-You can generate HTML directly from Go passing your types as input and send it to the client.  
-A tipical route is: update the database -> retrieve data from database -> generate HTML -> send HTML
-
-Here's a simple example of using Go templates to loop over all `Items` and display a list of `Item.Name`:
 ```html
-<ul>
-    {% for item in Items %}
-    <li>{{ item.Name }}</li>
-    {% endfor %}
-</ul>
+<button
+hx-post="/clicked
+hx-trigger="click"
+hx-target="#my-id">
+Click me!
+</button>
 ```
 
+[Learn more HTMX target](https://htmx.org/docs/#targets)  
+[Learn more about CSS selectors](https://www.w3schools.com/cssref/css_selectors.php)  
+
 ### When
-TODO
+
+When to trigger the request. It is usually `click` or `submit` but it can be any events, it can also be trigger within JS.
+
+```html
+<button
+hx-post="/clicked
+hx-trigger="click">
+Click me!
+</button>
+```
 
 ### With
-TODO
+
+With are the data to attach to the reauest. There is 3 ways to do it:
+
+You can attach the data directly to the URL when you create the HTML using a template.
+```html
+<button
+hx-post="/clicked?text={{ Text }}
+hx-trigger="click">
+Click me!
+</button>
+```
+
+You can use `hx-include`, that take the name attribute of elements. [Learn more](https://htmx.org/attributes/hx-include/)
+```html
+<button hx-post="/register" hx-include="[name='email']">
+	Register!
+</button>
+Enter email: <input name="email" type="email"/>
+```
+
+Or you can use `hx-vals` for more complexe data and use JS directly. [Learn more](https://htmx.org/attributes/hx-vals/)
+```html
+ <div hx-get="/example" hx-vals='js:{myVal: calculateValue()}'>
+```
 
 ### What
-TODO
+
+And to finish with what to do with the response, or how to swap. For that there is 6 possibility
 
 ## Using JS
 So JavaScript. I don't like it, I made it clear enough I think but like said in the intro:
 
 *JavaScript is fine, I just don't like big frameworks looking mandatory. Or more precisely the overall unnecessary hidden complexity behind them.*
 
-So we need some JavaScript for a good UX, exempt for specific app that need very low reactivity, you will need to sparkle JS here and there. So how do I use JS in my app ?  
-I try to keep things simple, like everything else. Let's take an example: I have a chatbot with a send button. I want the button to be disable if there is no text in the input area. I will put an event listener to it. 
+The only rule to follow is **There is no data living in JS**.
 
-```js
-const textarea = document.getElementById('chat-input-textarea');
-textarea.addEventListener('oninput', function () {
-	document.getElementById('chat-input-send-btn').disabled.disabled = textarea.value.trim().length === 0;
-});
-```
+JS need to be use only to update the HTML and that's it. If at some point you have some JS variable that like contain the number of time a user clicked on a button, and you keep it in JS to use it in different JS functions. You do not do HATEOAS!
 
-In this example, everytime the text inside the element with the id `chat-input-textarea` is changed, is update the element with the id `chat-input-btn`. This is the kind of thing you simply cannot pass by the server. Image evertime you press a key it take 1s to load ? Or even 0.1s. Nobody want to use an app like that.
-
-Here a non exaustive list of stuff I use in JS in my app. Note that this is all I know about JS, I choosed HTMX to not need to learn complex JS. But the basic stuff to interact with the HTML/DOM are necessary (still learning):
-- `document.getElementById('my-id')`: Get an element based on the id. I like using `-` in 
+**Data can only live in the HTML or in the Database.**
 
 # Deployment
 For the deployment you can use anything as it is just a docker container [Dockerfile](https://github.com/MrBounty/HEG/edit/main/Dockerfile). It is a really small one too, for example my app [JADE](https://jade.bouvai.com) is a 31MB container that run perfectly on a 1 shared CPU and 256MB or RAM on fly.io. So the hosting part isn't an issue as it would cost near to nothing on any cloud platform.
