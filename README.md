@@ -24,9 +24,11 @@ So the only 2 places where you can store data/state are either the HTML or the D
   - Go
   - EdgeDB
   - HTMX
+- Naming convention
 - Go + EdgeDB
   - Starting a Database
-  - Defining type
+  - Defining type in EdgeDB
+  - Defining type in Go
   - Fetching data
   - Authentification
   - Managing the EdgeDB client
@@ -56,33 +58,16 @@ EdgeDB is an open-source modern database designed with developer experience in m
 ## HTMX
 HTMX allows HTML attributes to send HTTP requests to the server that return HTML and use it to update parts of the page. This reduces the need for complex JavaScript frameworks for apps with small to medium interactivity. While HTMX does not eliminate JavaScript entirely, it significantly reduces the amount required by removing the need of a framework. [Learn more](https://htmx.org/)
 
+# Examples
+
+[Step by step simple TODO list intro](https://github.com/MrBounty/HEG-todo-example)
+
 # Naming convention
 Before everything here an idea of the naming convention I used:
 - `thisIsAnExample`: For Go variable, and global EdgeDB variable
 - `ThisIsAnExample`: For Go type and functions, and EdgeDB type
 - `this-is-an-id`: For ids in HTML
 - `this_is_an_example`: For variable in EdgeDB type
-
-# Folder structure
-
-```
-├── edgedb.toml
-├── main.go
-├── otherGolangFile.go
-├── Dockerfile
-├── dbschema
-│   ├── default.esdl
-│   ├── migrations
-├── static
-│   ├── style.css
-│   ├── image.png
-├── views
-│   ├── layout
-│   │   ├──main.html
-│   ├── partials
-│   │   ├──partial1.html
-│   ├── page1.html
-```
 
 # Go + EdgeDB
 
@@ -97,7 +82,7 @@ First thing to do is to follow the [EdgeDB quickstart](https://docs.edgedb.com/g
 
 You can either create a local db or use a cloud free tier to start developping.
 
-## Defining Type
+## Defining Type in EdgeDB
 You define type in `default.esdl` like that:
 ```esdl
 type User {
@@ -107,7 +92,11 @@ type User {
     setting: Setting; # This is a link to another Setting type
 }
 ```
+
+And then migrate the new schema to update the database. using the command `edgedb migration create` and then `edgedb migrate`.
+
 [Learn more about EdgeDB schema](https://docs.edgedb.com/database/datamodel)  
+[Learn more about EdgeDB migration](https://www.edgedb.com/showcase/migrations)  
 [Learn more about EdgeDB type](https://docs.edgedb.com/database/datamodel/objects)
 
 Here a more advance example with default value:
@@ -127,7 +116,8 @@ type Conversation {
 }
 ```
 
-You also define a type in go in a similar way.
+## Defining type in Go
+You also define a type in go in a similar way. Note that we need to define all type in both EdgeDB and Go.
 ```go
 type User struct {
     ID       edgedb.UUID `edgedb:"id"`
@@ -186,16 +176,17 @@ The query language of EdgeDB is named EdgeQL, here are some links for more infos
 [Learn more about EdgeQL](https://www.edgedb.com/showcase/edgeql)  
 [Interactive EdgeQL tutotial](https://docs.edgedb.com/tutorial)
 
+You can use the built-in UI of your database to add some data and run some query. Very usefull during development.
+
 ## Authentification
-EdgeDB has a built-in auth UI. You can configure it in the auth section of the EdgeDB UI. This is the flow:
+EdgeDB has a built-in auth UI. You can **configure it in the auth section of the EdgeDB UI**, see link below for more details. Once configured, you need to implement the flow in your app. Here the step by step:
 
 1. The user click on a button and is redirect to `/signin`.
 2. `/signin` generate a PKCE and verifier. It save the verifier in a cookie and redirect to the built-in UI of your database with the PKCE.
-3. The user can choose between different auth provider like google or github.
-4. The user is redirect to `callbackSignup` if unknow (first time login) or `/callback` if the user is know.
-5. The user now have a cookie that you need to rename (by default `my-cookie-name-auth-token` in the example).
-6. Every request that the user make, use the cookie to authenticate the user on the global EdgeDB client (see next section).
-7. To signout, delete the cookie.
+3. The user can choose between different auth provider like google or github. EdgeDB create a new `Identity`.
+4. The user is redirect to `callbackSignup` if unknow (first time login) or `/callback` if the user is know. And a cookie that refer to the `Identity` is created.
+7. Every request that the user make, use the cookie to authenticate the user on the global EdgeDB client (see next section).
+8. To signout, delete the cookie.
 
 Add those route using the 'authentification_example.go' file. 
 ```go
@@ -272,13 +263,13 @@ SELECT User {
 FILTER .friend = global currentUser;
 ```
 
-And that's it, you can now query anywhere in your app and every request is potentialy authentify, so no risk of auth crossing of stuffs like that. And don't worry about performance, it is think to be use like that, it cost nothing.
+And that's it, you can now query anywhere in your app and every request is potentialy authentify, so no risk of auth crossing or stuffs like that. And don't worry about performance, it is think to be use like that, it cost nothing.
 
 *Note: A function named init in go in any file will be run one time at the start of the server.*
 
 # Go + HTMX + JS
 
-Ok now that we have setup everything, we need to start building the app. Idk what you are trying to build but I will try stay consistent for any kind of app.
+Now that we have setup the database, let's see how to use HTMX and JS. I assume that you know HTML and CSS (You can use a CSS library like bulma).
 
 ## Template
 
@@ -408,6 +399,20 @@ JS need to be use only to update the HTML and that's it. If at some point you ha
 
 **Data can only live in the HTML or in the Database.**
 
+I like to attach my function directly in the HTML, to keep things at the same place. You need to be carefull doing that tho, because you can easely send 2 times the same script.  
+You can also just create one or multiple .js file and import it in the head of the HTML.
+
+For example, here a function that will hide a popover menu if I click outside of it:
+```html
+<script>
+document.addEventListener('click', function (event) {
+    if (!document.getElementById('models-dropdown').contains(event.target)) {
+	document.getElementById('models-dropdown').classList.remove('is-active');
+    }
+});
+</script>
+```
+
 # Deployment
 For the deployment you can use anything as it is just a docker container [Dockerfile](https://github.com/MrBounty/HEG/edit/main/Dockerfile). It is a really small one too, for example my app [JADE](https://jade.bouvai.com) is a 31MB container that run perfectly on a 1 shared CPU and 256MB or RAM on fly.io. So the hosting part isn't an issue as it would cost near to nothing on any cloud platform.
 
@@ -415,62 +420,40 @@ I personally use [fly.io](fly.io) because it is perfect for me. It do exactly wh
 
 TODO: Tuto to deploy an app on fly
 
+# Performance
+
+A big downfall of overly using the database is that the link between the database and the app need to be fast. Otherwise everything will take a will.
+
+I recommand hosting the database and app very close to each other, preferably in on the same server. Because EdgeDB is open-source, you can host it directly on fly.io with you app or on any cloud provider.
+
 # Web Assembly
 
-I started using a bit of webassembly for some parts. I did a really small wrapper that I may improve in the future.
-
-```js
-// Get all elements with hgo-run attribute
-var elements = document.querySelectorAll('[hgo-run]');
-
-// Loop through each element
-elements.forEach(function (element) {
-    // Add event listener based on hgo-trigger attribute
-    var trigger = element.getAttribute('hgo-trigger') || 'click';
-    element.addEventListener(trigger, function () {
-	var sourceId = element.getAttribute('hgo-source') || element.id;
-	var sourceElement = document.getElementById(sourceId);
-	// Get target element
-	var targetId = element.getAttribute('hgo-target') || element.id;
-	var targetElement = document.getElementById(targetId);
-
-	// Get the value of the hgo-run attribute
-	var hgoRunValue = element.getAttribute('hgo-run');
-
-	// Get the value of the hgo-swap attribute
-	var hgoSwapValue = element.getAttribute('hgo-swap') || 'innerHTML';
-
-	// Run the function and swap the value
-	console.log(sourceElement.innerHTML);
-	targetElement[hgoSwapValue] = window[hgoRunValue](sourceElement.innerHTML);
-    });
-});
-```
-
-It can be use in a similare way directly in HTML:
-```html
-<button id="btn" hgo-run="htmlTransfo" hgo-target="my-target" hgo-trigger="click" hgo-source="my-target"
-    hgo-swap="innerHTML">Click !</button>
-<div id="my-target">0</div>
-```
-
-So in this example it will run the `htmlTransfo` go function.
-```go
-func htmlTransfo(this js.Value, inputs []js.Value) interface{} {
-	fmt.Println("Input:", inputs[0].String())
-	// Get the int value from the input.
-	i, err := strconv.Atoi(inputs[0].String())
-	if err != nil {
-		return "Error"
-	}
-	return i + 1
-}
-```
+Sometime you need something instantly but also need to use Go and not JS. That's when Web Assembly is useful.
 
 TODO: Explain how to build the .wasm and import it to the app.
 
-# Performance
-TODO: Need data with more users
+[Learn more about how to use wasm with Go](https://go.dev/wiki/WebAssembly)
+
+# Folder structure
+
+```
+├── edgedb.toml
+├── main.go
+├── otherGolangFile.go
+├── Dockerfile
+├── dbschema
+│   ├── default.esdl
+│   ├── migrations
+├── static
+│   ├── style.css
+│   ├── image.png
+├── views
+│   ├── layout
+│   │   ├──main.html
+│   ├── partials
+│   │   ├──partial1.html
+│   ├── page1.html
+```
 
 # Other advices
 - Dog food your app (you are the user of your app)
